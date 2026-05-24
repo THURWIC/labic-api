@@ -1,14 +1,18 @@
-# 🧪 LABIC API - Portal Institucional e Gestão de Pesquisa (MVP)
+🧪 LABIC API - Portal Institucional e Gestão de Pesquisa (MVP)
 
 Bem-vindo(a) ao repositório oficial do Back-end do Laboratório de Inovação e Criatividade (LABIC). 
 
-Esta API RESTful foi desenvolvida para gerenciar e centralizar os dados do corpo técnico, os projetos em execução e a produção acadêmica do laboratório, fornecendo a base de dados para o Portal Institucional.
+## 🎯 Sobre o Projeto
+O objetivo desta plataforma é criar uma vitrine digital centralizada para organizar e divulgar o corpo técnico, os projetos e a produção acadêmica do LABIC. 
+
+Quando o sistema End-to-End estiver concluído, ele contará com:
+* **Portal Público:** Páginas institucionais (Home, Sobre, Linhas de Pesquisa e Contato) para divulgar a inovação do laboratório.
+* **Dashboard de Gestão (Privado):** Um painel administrativo com sistema de login para gerenciar o cadastro de membros, projetos e submissão de artigos.
+* **API RESTful:** O coração do sistema (este repositório!), construído para fornecer o CRUD completo e proteger todos os dados que serão consumidos pelo Front-end.
 
 ## 🚀 Tecnologias Utilizadas
-* **Linguagem:** Python
-* **Framework:** Django
+* **Back-end:** Python e Django
+* **Integração Futura:** O Front-end consumirá esta API.
 
-## ⚙️ Status do Projeto (Fase 1: Estruturação)
-* ✅ Arquitetura do servidor e ambiente configurados.
-* ✅ Banco de dados relacional modelado (Pesquisadores, Projetos e Artigos).
-* ✅ Esqueleto das rotas CRUD preparado para integração.
+🚧 **Status do Projeto: Em Desenvolvimento** 🚧
+*Projeto desenvolvido para o Desafio Prático do Programa de Formação Acelerada FUTURO Cepedi.*
