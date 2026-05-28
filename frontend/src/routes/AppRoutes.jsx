@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 // PUBLIC
+import PublicLayout from '../components/layout/PublicLayout'
 import Home from '../pages/public/Home'
 import Sobre from '../pages/public/Sobre'
 import Pesquisa from '../pages/public/Pesquisa'
@@ -30,10 +31,10 @@ function AppRoutes() {
       <Routes>
 
         {/* PUBLIC */}
-        <Route path="/" element={<Home />} />
-        <Route path="/sobre" element={<Sobre />} />
-        <Route path="/pesquisa" element={<Pesquisa />} />
-        <Route path="/contato" element={<Contato />} />
+        <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+        <Route path="/sobre" element={<PublicLayout><Sobre /></PublicLayout>} />
+        <Route path="/pesquisa" element={<PublicLayout><Pesquisa /></PublicLayout>} />
+        <Route path="/contato" element={<PublicLayout><Contato /></PublicLayout>} />
 
         {/* AUTH */}
         <Route path="/login" element={<Login />} />
