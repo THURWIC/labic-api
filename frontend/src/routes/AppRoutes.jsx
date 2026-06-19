@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-// PUBLIC
+// LAYOUTS (Mapeados exatamente conforme a sua estrutura real)
 import PublicLayout from '../components/layout/PublicLayout'
+import DashboardLayout from '../components/layout/DashboardLayout'
+
+// PUBLIC
 import Home from '../pages/public/Home'
 import Sobre from '../pages/public/Sobre'
 import Pesquisa from '../pages/public/Pesquisa'
@@ -39,20 +42,16 @@ function AppRoutes() {
         {/* AUTH */}
         <Route path="/login" element={<Login />} />
 
-        {/* DASHBOARD */}
-        <Route path="/dashboard" element={<Dashboard />} />
-
-        {/* RESEARCHERS */}
-        <Route path="/dashboard/pesquisadores" element={<ResearchersList />} />
-        <Route path="/dashboard/pesquisadores/novo" element={<ResearcherCreate />} />
-
-        {/* PROJECTS */}
-        <Route path="/dashboard/projetos" element={<ProjectsList />} />
-        <Route path="/dashboard/projetos/novo" element={<ProjectCreate />} />
-
-        {/* ARTICLES */}
-        <Route path="/dashboard/artigos" element={<ArticlesList />} />
-        <Route path="/dashboard/artigos/novo" element={<ArticleCreate />} />
+        {/* 🛡️ DASHBOARD */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="pesquisadores" element={<ResearchersList />} />
+          <Route path="pesquisadores/novo" element={<ResearcherCreate />} />
+          <Route path="projetos" element={<ProjectsList />} />
+          <Route path="projetos/novo" element={<ProjectCreate />} />
+          <Route path="artigos" element={<ArticlesList />} />
+          <Route path="artigos/novo" element={<ArticleCreate />} />
+        </Route>
 
       </Routes>
     </BrowserRouter>
