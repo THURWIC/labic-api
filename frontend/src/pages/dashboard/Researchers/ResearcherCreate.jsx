@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiAlertCircle } from 'react-icons/fi';
 
 export default function ResearcherCreate() {
   const navigate = useNavigate();
@@ -12,23 +13,77 @@ export default function ResearcherCreate() {
     link: ''
   });
   
-  const [errors, setErrors] = useState({
-    email: ''
-  });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoName, setPhotoName] = useState('');
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (name === 'email') setErrors({ email: '' });
+    
+    if (errors[name]) {
+      setErrors(prev => {
+        const clone = { ...prev };
+        delete clone[name];
+        return clone;
+      });
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setErrors(prev => ({ ...prev, photo: 'O arquivo selecionado deve ser uma imagem válida.' }));
+        setPhotoFile(null);
+        setPhotoName('');
+        return;
+      }
+      
+      setPhotoFile(file);
+      setPhotoName(file.name);
+      
+      if (errors.photo) {
+        setErrors(prev => {
+          const clone = { ...prev };
+          delete clone['photo'];
+          return clone;
+        });
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const currentErrors = {};
+
+    if (formData.name.trim().length < 6) {
+      currentErrors.name = 'O nome completo deve conter pelo menos 6 caracteres.';
+    }
+    if (!formData.email.includes('@') || !formData.email.includes('.')) {
+      currentErrors.email = 'O e-mail inserido deve ser um endereço válido.';
+    }
+    if (formData.area.trim().length < 3) {
+      currentErrors.area = 'Informe uma área de pesquisa válida.';
+    }
+    if (formData.bio.trim().length < 30) {
+      currentErrors.bio = 'A biografia acadêmica deve ser mais descritiva (mínimo de 30 caracteres).';
+    }
+    if (!photoFile) {
+      currentErrors.photo = 'É obrigatório selecionar uma foto de perfil para o pesquisador.';
+    }
+
+    setErrors(currentErrors);
+    return Object.keys(currentErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.email.includes('@') || !formData.email.includes('.')) {
-      setErrors({ email: 'O email deve ser um endereço válido.' });
+    
+    if (!validateForm()) {
       return;
     }
-    console.log('Salvando pesquisador:', formData);
+
+    console.log('Salvando pesquisador validado:', { ...formData, photoFile });
     navigate('/dashboard/pesquisadores');
   };
 
@@ -40,75 +95,83 @@ export default function ResearcherCreate() {
         
         <hr style={styles.divider} />
 
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} style={styles.form} noValidate>
+          {/* Nome Completo */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Nome completo</label>
             <input
               type="text"
               name="name"
               placeholder="Seu nome completo"
-              style={styles.input}
+              style={{ ...styles.input, borderColor: errors.name ? '#E57373' : '#E5E7EB' }}
               value={formData.name}
               onChange={handleChange}
-              required
             />
+            {errors.name && <span style={styles.errorText}><FiAlertCircle /> {errors.name}</span>}
           </div>
 
+          {/* Email */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
             <input
               type="text"
               name="email"
               placeholder="Seu email"
-              style={{
-                ...styles.input,
-                borderColor: errors.email ? 'rgb(229,115,115)' : '#E5E7EB'
-              }}
+              style={{ ...styles.input, borderColor: errors.email ? '#E57373' : '#E5E7EB' }}
               value={formData.email}
               onChange={handleChange}
-              required
             />
-            {errors.email && (
-              <div style={styles.errorAlert}>
-                {errors.email}
-              </div>
-            )}
+            {errors.email && <span style={styles.errorText}><FiAlertCircle /> {errors.email}</span>}
           </div>
 
+          {/* Área de Pesquisa */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Área de pesquisa</label>
             <input
               type="text"
               name="area"
               placeholder="Ex: Inteligência Artificial"
-              style={styles.input}
+              style={{ ...styles.input, borderColor: errors.area ? '#E57373' : '#E5E7EB' }}
               value={formData.area}
               onChange={handleChange}
-              required
             />
+            {errors.area && <span style={styles.errorText}><FiAlertCircle /> {errors.area}</span>}
           </div>
 
+          {/* Biografia */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Biografia</label>
             <textarea
               name="bio"
               placeholder="Sua breve biografia acadêmica e profissional"
-              style={styles.textarea}
+              style={{ ...styles.textarea, borderColor: errors.bio ? '#E57373' : '#E5E7EB' }}
               value={formData.bio}
               onChange={handleChange}
               rows={4}
-              required
             />
+            {errors.bio && <span style={styles.errorText}><FiAlertCircle /> {errors.bio}</span>}
           </div>
 
+          {/* Foto (Upload) */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Foto</label>
-            <div style={styles.fileContainer}>
-              <input type="file" id="file-upload" style={styles.fileInput} />
+            <div style={{ ...styles.fileContainer, borderColor: errors.photo ? '#E57373' : '#E5E7EB' }}>
+              <input 
+                type="file" 
+                id="file-upload" 
+                accept="image/*"
+                style={styles.fileInput} 
+                onChange={handleFileChange}
+              />
               <label htmlFor="file-upload" style={styles.fileBtn}>Selecionar arquivo</label>
+              <span style={{ ...styles.fileInstructions, color: photoName ? '#1F1F1F' : '#6B7280' }}>
+                {photoName ? photoName : 'Nenhum arquivo selecionado'}
+              </span>
             </div>
+            {errors.photo && <span style={styles.errorText}><FiAlertCircle /> {errors.photo}</span>}
           </div>
 
+          {/* Currículo/Link */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Currículo/link</label>
             <input
@@ -121,6 +184,7 @@ export default function ResearcherCreate() {
             />
           </div>
 
+          {/* Ações */}
           <div style={styles.actions}>
             <button 
               type="button" 
@@ -148,13 +212,14 @@ const styles = {
   form: { display: 'flex', flexDirection: 'column', gap: '20px' },
   inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
   label: { fontSize: '16px', fontWeight: '600', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' },
-  input: { height: '46px', padding: '0 14px', borderRadius: '5px', border: '1px solid #E5E7EB', fontSize: '15px', fontFamily: 'Open Sans, sans-serif', outline: 'none', transition: '0.2s ease' },
+  input: { height: '46px', padding: '0 14px', borderRadius: '5px', border: '1px solid #E5E7EB', fontSize: '15px', fontFamily: 'Open Sans, sans-serif', outline: 'none' },
   textarea: { padding: '12px 14px', borderRadius: '5px', border: '1px solid #E5E7EB', fontSize: '15px', fontFamily: 'Open Sans, sans-serif', outline: 'none', resize: 'vertical' },
-  fileContainer: { display: 'flex' },
+  fileContainer: { display: 'flex', alignItems: 'center', border: '1px solid #E5E7EB', borderRadius: '5px', overflow: 'hidden', height: '46px', backgroundColor: '#FFFFFF' },
   fileInput: { display: 'none' },
-  fileBtn: { padding: '10px 16px', border: '1px solid #9CA3AF', backgroundColor: '#F3F4F6', color: '#1F1F1F', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', transition: '0.2s ease' },
-  errorAlert: { backgroundColor: 'rgb(229,115,115)', color: '#FFFFFF', padding: '10px', borderRadius: '5px', fontSize: '14px', marginTop: '4px' },
+  fileBtn: { display: 'flex', alignItems: 'center', height: '100%', padding: '0 16px', backgroundColor: '#F3F4F6', borderRight: '1px solid #E5E7EB', cursor: 'pointer', fontSize: '14px', color: '#1F1F1F', flexShrink: 0 },
+  fileInstructions: { fontSize: '14px', paddingLeft: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 },
   actions: { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' },
   cancelBtn: { backgroundColor: '#FFFFFF', color: '#1F1F1F', border: '1px solid #E5E7EB', borderRadius: '5px', padding: '12px 24px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', transition: '0.2s ease' },
   saveBtn: { backgroundColor: 'rgb(43, 93, 250)', color: '#FFFFFF', border: 'none', borderRadius: '5px', padding: '12px 24px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', transition: '0.2s ease' },
+  errorText: { color: '#E57373', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }
 };
