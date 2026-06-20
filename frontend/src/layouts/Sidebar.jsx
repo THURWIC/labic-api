@@ -1,4 +1,3 @@
-
 import { NavLink } from 'react-router-dom';
 import labicLogo from '../assets/images/labicLogo.webp';
 
@@ -12,7 +11,6 @@ export default function Sidebar() {
 
   return (
     <aside style={styles.sidebar}>
-      {/* Container da logo com tamanho mais equilibrado */}
       <div style={styles.logoContainer}>
         <img 
           src={labicLogo} 
@@ -44,12 +42,12 @@ export default function Sidebar() {
 
 const styles = {
   sidebar: {
-    width: '260px',
+    width: '220px',
     height: '100vh',
     backgroundColor: '#111827',
     display: 'flex',
     flexDirection: 'column',
-    padding: '32px 16px',
+    padding: '32px 12px',
     position: 'fixed',
     left: 0,
     top: 0,
@@ -63,19 +61,19 @@ const styles = {
     marginBottom: '32px',
   },
   logoImage: {
-    maxWidth: '55%', // Diminuído de 80% para 55% para ficar discreto e elegante
+    maxWidth: '60%',
     height: 'auto',
     objectFit: 'contain',
   },
   nav: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px', // Diminuído o espaçamento entre os botões
+    gap: '4px',
   },
   navLink: {
     fontFamily: 'Open Sans, sans-serif',
-    fontSize: '14px', // Diminuído para não parecer grotesco
-    padding: '10px 14px', // Reduzido o preenchimento interno
+    fontSize: '13.5px',
+    padding: '10px 12px',
     borderRadius: '5px',
     textDecoration: 'none',
     transition: '0.15s ease',

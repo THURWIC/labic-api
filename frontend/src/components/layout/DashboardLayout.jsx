@@ -1,8 +1,7 @@
-
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../../layouts/Sidebar';
 import Topbar from '../../layouts/Topbar';
-import Footer from '../../layouts/Footer'; // Importando o footer existente
+import Footer from '../../layouts/Footer';
 
 export default function DashboardLayout() {
   return (
@@ -12,7 +11,6 @@ export default function DashboardLayout() {
       <div style={styles.mainContent}>
         <Topbar />
         
-        {/* Bloco central que agrupa a página + footer na rolagem */}
         <div style={styles.scrollContainer}>
           <main style={styles.pageArea}>
             <div style={styles.containerFluid}>
@@ -20,7 +18,6 @@ export default function DashboardLayout() {
             </div>
           </main>
           
-          {/* Footer renderizado exatamente na base interna do sistema */}
           <Footer />
         </div>
       </div>
@@ -37,14 +34,14 @@ const styles = {
   },
   mainContent: {
     flex: 1,
-    marginLeft: '260px',
+    marginLeft: '220px',
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
   },
   scrollContainer: {
     flex: 1,
-    overflowY: 'auto', // Permite rolar a página até ver o footer
+    overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
   },
