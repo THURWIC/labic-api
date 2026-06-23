@@ -1,27 +1,49 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Card from '../../../components/ui/Card'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
+import Alert from '../../../components/ui/Alert'
 import { FiSearch, FiPlus, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
-
-const mockProjects = [
-  { id: 1, titulo: 'Deep Learning Model', descricao: 'Pesquisas em machine learning, processamento de dados.', responsavel: 'Dr. Carlos Silva', status: 'Ativo' },
-  { id: 2, titulo: 'Smart 3D Printer Controller', descricao: 'Desenvolvimento de solução com impressora 3D.', responsavel: 'MSc. Julia Torres', status: 'Em Execução' },
-  { id: 3, titulo: 'Community Drone Mapping', descricao: 'Mapeamento com drones e softwares sob medida.', responsavel: 'Eng. Rafael Costa', status: 'Concluído' },
-  { id: 4, titulo: 'Educational VR Platform', descricao: 'Plataforma educacional em Realidade Virtual.', responsavel: 'Prof. Lucas Almeida', status: 'Em Execução' },
-  { id: 5, titulo: 'Chatbot Inteligente', descricao: 'Assistente virtual baseado em IA.', responsavel: 'Dra. Fernanda Lima', status: 'Ativo' },
-]
+import { projectsService } from '../../../services/projectsService'
 
 export default function ProjectsList() {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const filteredProjects = mockProjects.filter(p =>
-    p.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.responsavel.toLowerCase().includes(searchTerm.toLowerCase())
+  const loadProjects = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await projectsService.getAll()
+      setProjects(data)
+    } catch (err) {
+      setError('Erro ao carregar projetos. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadProjects()
+  }, [])
+
+  const filteredProjects = projects.filter(p =>
+    p.title.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const handleDelete = async (id) => {
+    try {
+      await projectsService.delete(id)
+      loadProjects()
+    } catch {
+      setError('Erro ao excluir projeto.')
+    }
+  }
 
   return (
     <div>
@@ -36,10 +58,10 @@ export default function ProjectsList() {
       </div>
 
       {/* TOP BAR */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: '24px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ maxWidth: '400px', width: '100%' }}>
           <Input
-            placeholder="Buscar projeto por título ou responsável..."
+            placeholder="Buscar projeto por título..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -50,55 +72,87 @@ export default function ProjectsList() {
         </Button>
       </div>
 
+      {/* ERROR */}
+      {error && (
+        <div style={{ marginBottom: '16px' }}>
+          <Alert type="error" message={error} onClose={() => setError(null)} />
+        </div>
+      )}
+
+      {/* LOADING */}
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '16px', color: '#555555' }}>Carregando projetos...</p>
+        </div>
+      )}
+
+      {/* EMPTY */}
+      {!loading && !error && filteredProjects.length === 0 && (
+        <Card>
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '16px', color: '#555555', margin: '0 0 16px 0' }}>
+              {searchTerm ? 'Nenhum projeto encontrado para esta busca.' : 'Nenhum projeto cadastrado ainda.'}
+            </p>
+            {!searchTerm && (
+              <Button variant="primary" onClick={() => navigate('/dashboard/projetos/novo')}>
+                <FiPlus size={16} style={{ marginRight: '8px' }} />
+                Criar Primeiro Projeto
+              </Button>
+            )}
+          </div>
+        </Card>
+      )}
+
       {/* TABLE */}
-      <Card>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
-              <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Título</th>
-              <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Descrição</th>
-              <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Responsável</th>
-              <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Status</th>
-              <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif', textAlign: 'center' }}>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProjects.map((project) => (
-              <tr key={project.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '600', color: '#1F1F1F' }}>{project.titulo}</td>
-                <td style={{ padding: '16px 24px', fontSize: '14px', color: '#555555' }}>{project.descricao}</td>
-                <td style={{ padding: '16px 24px', fontSize: '14px', color: '#555555' }}>{project.responsavel}</td>
-                <td style={{ padding: '16px 24px' }}>
-                  <Badge
-                    variant={
-                      project.status === 'Ativo'
-                        ? 'success'
-                        : project.status === 'Em Execução'
-                        ? 'warning'
-                        : 'primary'
-                    }
-                  >
-                    {project.status}
-                  </Badge>
-                </td>
-                <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                    <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }} title="Visualizar">
-                      <FiEye size={16} color="#4B5563" />
-                    </button>
-                    <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }} title="Editar">
-                      <FiEdit2 size={16} color="#2B5DFA" />
-                    </button>
-                    <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }} title="Excluir">
-                      <FiTrash2 size={16} color="#E57373" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
+      {!loading && !error && filteredProjects.length > 0 && (
+        <div style={{ overflowX: 'auto' }}>
+          <Card>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
+                  <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Título</th>
+                  <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Início</th>
+                  <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif' }}>Status</th>
+                  <th style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '700', color: '#1F1F1F', fontFamily: 'Inter, sans-serif', textAlign: 'center' }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProjects.map((project) => (
+                  <tr key={project.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '600', color: '#1F1F1F' }}>{project.title}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#555555' }}>{project.startDate || '-'}</td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <Badge
+                        variant={
+                          project.status === 'Ativo' ? 'success'
+                          : project.status === 'Em Execução' ? 'warning'
+                          : project.status === 'Concluído' ? 'primary'
+                          : 'info'
+                        }
+                      >
+                        {project.status}
+                      </Badge>
+                    </td>
+                    <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }} title="Visualizar">
+                          <FiEye size={16} color="#4B5563" />
+                        </button>
+                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }} title="Editar">
+                          <FiEdit2 size={16} color="#2B5DFA" />
+                        </button>
+                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px' }} title="Excluir" onClick={() => handleDelete(project.id)}>
+                          <FiTrash2 size={16} color="#E57373" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
